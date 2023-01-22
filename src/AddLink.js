@@ -2,6 +2,7 @@ import React, { useEffect, useContext, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import axios from "axios";
 import useLocalStorage from "use-local-storage";
+import { useRouter } from "next/router";
 
 export const AddLink = ({
   movie,
@@ -63,9 +64,9 @@ export const AddLink = ({
   useEffect(() => {
     const search = async () => {
       const linksarr = await links;
-      console.log("LINKS FROM ADDLINK pATH1", linksarr);
+      //console.log("LINKS FROM ADDLINK pATH1", linksarr);
       var offers = linksarr.items[0].offers;
-      console.log("offers: ", offers);
+      //console.log("offers: ", offers);
       var someLinks = false;
       for (const i in offers) {
         var service = offers[i].package_short_name;
@@ -73,7 +74,7 @@ export const AddLink = ({
           ? offers[i].urls.deeplink_web
           : offers[i].urls.standard_web;
 
-        console.log("REsults link ", resultLink);
+        //console.log("REsults link ", resultLink);
 
         switch (service) {
           case "nfx":
@@ -116,7 +117,7 @@ export const AddLink = ({
         setLink("");
       }
     };
-    console.log("before search, links are: ", links);
+    //console.log("before search, links are: ", links);
     if (links) {
       search();
     }

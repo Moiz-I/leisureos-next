@@ -42,8 +42,8 @@ export default function MovieGrid(props) {
   }, []);
 
   useEffect(() => {
-    console.log("SHOW ADDED");
-    console.log(localStorage.getItem("showlist"));
+    //console.log("SHOW ADDED");
+    //console.log(localStorage.getItem("showlist"));
   }, []);
 
   const [selectedRegion, setSelectedRegion] = useLocalStorage(
@@ -55,9 +55,9 @@ export default function MovieGrid(props) {
 
   const onCountryChange = (selectedOption) => {
     setSelectedRegion(selectedOption);
-    console.log(selectedRegion);
+    //console.log(selectedRegion);
     //changeCountry(selectedOption);
-    console.log("chanhed country");
+    //console.log("chanhed country");
   };
 
   const addMovieToShowlist = (movie) => {
@@ -148,7 +148,7 @@ export default function MovieGrid(props) {
                       key={movie[0]}
                       locale={selectedOption.value}
                       links={props.links}
-                      addMovie={addMovieToShowlist}
+                      addMovieFunc={addMovieToShowlist}
                       removeMovieFunc={removeMovieFromShowlist}
                     />
                   </div>
