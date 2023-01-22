@@ -5,15 +5,20 @@ import Script from "next/script";
 export default function App({ Component, pageProps }) {
   return (
     <>
-      <script
-        async
+      {/* <!-- Global site tag (gtag.js) - Google Analytics --> */}
+      <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-C6MRCXCQX7"
-      ></script>
-      <script>
-        window.dataLayer = window.dataLayer || []; function gtag()
-        {dataLayer.push(arguments)}
-        gtag('js', new Date()); gtag('config', 'G-C6MRCXCQX7');
-      </script>
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', G-C6MRCXCQX7);
+        `}
+      </Script>
       <Component {...pageProps} />
     </>
   );
