@@ -53,6 +53,7 @@ export default function Search(props) {
           links={props.links}
           addMovieFunc={props.addMovie}
           removeMovieFunc={props.removeMovie}
+          updateTag={props.updateTag}
         />
       ) : (
         <>

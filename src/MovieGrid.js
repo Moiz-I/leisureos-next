@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useCallback } from "react";
 import { MovieCard } from "./MovieCard";
 import { GlobalContext } from "../context/GlobalState";
 import Search from "./results";
@@ -9,8 +9,40 @@ import { useRouter } from "next/router";
 // import { useAppContext } from "@/context/AppContext";
 // const { state, dispatch } = useAppContext();
 import useLocalStorage from "use-local-storage";
+import { ReactTags } from "react-tag-autocomplete";
 
 export default function MovieGrid(props) {
+  const [tags, setTags] = useLocalStorage("tags", []);
+  const suggestions = tags.map((name, index) => ({
+    value: index,
+    label: name,
+  }));
+  const updateTag = (newTag) => {
+    setTags([...tags, newTag.value]);
+  };
+  const [selected, setSelected] = useState([]);
+  const onAdd = useCallback(
+    (newTag) => {
+      setSelected([...selected, newTag]);
+    },
+    [selected]
+  );
+  const onDelete = useCallback(
+    (tagIndex) => {
+      setSelected(selected.filter((_, i) => i !== tagIndex));
+    },
+    [selected]
+  );
+
+  const getTags = () => {
+    const arr = [];
+    for (const i in selected) {
+      arr.push(selected[i].label);
+    }
+    console.log("arr: ", arr, "selected: ", selected);
+    return arr;
+  };
+
   const [showlist, setShowlist] = useLocalStorage("showlist", []);
 
   const router = useRouter();
@@ -61,25 +93,13 @@ export default function MovieGrid(props) {
   };
 
   const addMovieToShowlist = (movie) => {
+    console.log("adding: ", movie);
     setShowlist([movie, ...showlist]);
   };
 
   const removeMovieFromShowlist = (id) => {
     setShowlist(showlist.filter((movie) => movie[0] !== id));
   };
-
-  // useEffect(() => {
-  //   const updateRegion = () => {
-  //     setSelectedOption(selectedRegion);
-  //     console.log("corrected to ", selectedRegion);
-  //   };
-  //   updateRegion();
-  // }, [selectedOption]);
-
-  //const { state, dispatch } = useAppContext();
-  // const { number } = state;
-  // dispatch({ type: "add_number", value: 3 });
-  // console.log(number);
 
   return (
     <div className="movie-page">
@@ -106,6 +126,19 @@ export default function MovieGrid(props) {
             />
           </div>
         </div>
+        <div className="tag-container">
+          <ReactTags
+            allowBackspace
+            closeOnSelect
+            startWithFirstOption
+            labelText="search your tags"
+            selected={selected}
+            suggestions={suggestions}
+            onAdd={onAdd}
+            onDelete={onDelete}
+            noOptionsText="No matching countries"
+          />
+        </div>
         {showlist.length >= 0 && clientLoaded ? (
           <div className="movie-grid">
             <button
@@ -121,6 +154,7 @@ export default function MovieGrid(props) {
                 links={props.links}
                 addMovie={addMovieToShowlist}
                 removeMovie={removeMovieFromShowlist}
+                updateTag={updateTag}
               />
             </Modal>
             {/* <Popup
@@ -136,41 +170,110 @@ export default function MovieGrid(props) {
               <Search />
             </Popup> */}
             {showlist.map((movie) => {
-              if (movie[1].toLowerCase().includes(query.toLowerCase())) {
-                const imgSource = movie[2];
+              const tagSearch = movie[4].some((item) =>
+                getTags().includes(item)
+              );
+              const querySearch = movie[1]
+                .toLowerCase()
+                .includes(query.toLowerCase());
+              const isTag = getTags().length != 0;
+              const isQuery = query != "";
+              const matches = isQuery
+                ? isTag
+                  ? tagSearch && querySearch
+                  : querySearch
+                : tagSearch;
+              // query != ""
+              //   ? movie[4].some((item) => getTags().includes(item)) ||
+              //     (movie[1].toLowerCase().includes(query.toLowerCase()) &&
+              //       movie[4].some((item) => getTags().includes(item)))
+              //   : movie[4].some((item) => getTags().includes(item));
+              const defaultPage = !isQuery && !isTag;
+              // if (query!=""||getTags().length!=0)
+              // switch () {
+              //   case "nfx":
+              //     console.log("netflix");
+              //     setNetflix(resultLink);
+              //     someLinks = true;
+              //     break;
+              //   default:
+              //     break;
+              if (matches || defaultPage) {
                 return (
-                  <div>
-                    <MovieCard
-                      id={movie[0]}
-                      imgSource={imgSource}
-                      name={movie[1]}
-                      link={movie[3]}
-                      key={movie[0]}
-                      locale={selectedOption.value}
-                      links={props.links}
-                      addMovieFunc={addMovieToShowlist}
-                      removeMovieFunc={removeMovieFromShowlist}
-                    />
-                  </div>
-                );
-              } else if (query == "") {
-                const imgSource = movie[2];
-                return (
-                  <div>
-                    <MovieCard
-                      id={movie[0]}
-                      imgSource={imgSource}
-                      name={movie[1]}
-                      link={movie[3]}
-                      key={movie[0]}
-                      locale={selectedOption.value}
-                      links={props.links}
-                      addMovieFunc={addMovieToShowlist}
-                      removeMovieFunc={removeMovieFromShowlist}
-                    />
-                  </div>
+                  <MovieCard
+                    id={movie[0]}
+                    imgSource={movie[2]}
+                    name={movie[1]}
+                    link={movie[3]}
+                    key={movie[0]}
+                    locale={selectedOption.value}
+                    links={props.links}
+                    addMovieFunc={addMovieToShowlist}
+                    removeMovieFunc={removeMovieFromShowlist}
+                    updateTag={updateTag}
+                    matches={
+                      query != ""
+                        ? movie[4].some((item) => getTags().includes(item)) &&
+                          movie[1].toLowerCase().includes(query.toLowerCase())
+                        : movie[4].some((item) => getTags().includes(item))
+                    }
+                    defaultPage={query == "" && getTags().length == 0}
+                  />
                 );
               }
+              // if (movie[4].some((item) => getTags().includes(item))) {
+              //   if (movie[1].toLowerCase().includes(query.toLowerCase())) {
+              //     console.log(
+              //       "first if: query is ",
+              //       query,
+              //       " and selected is ",
+              //       getTags()
+              //     );
+              //     const imgSource = movie[2];
+              //     return (
+              //       <div>
+              //         <MovieCard
+              //           id={movie[0]}
+              //           imgSource={imgSource}
+              //           name={movie[1]}
+              //           link={movie[3]}
+              //           key={movie[0]}
+              //           locale={selectedOption.value}
+              //           links={props.links}
+              //           addMovieFunc={addMovieToShowlist}
+              //           removeMovieFunc={removeMovieFromShowlist}
+              //           updateTag={updateTag}
+              //         />
+              //       </div>
+              //     );
+              //   }
+              // } else if (getTags().length == 0) {
+              //   if (query == "") {
+              //     console.log(
+              //       "second if: query is ",
+              //       query,
+              //       " and selected is ",
+              //       getTags()
+              //     );
+              //     const imgSource = movie[2];
+              //     return (
+              //       <div>
+              //         <MovieCard
+              //           id={movie[0]}
+              //           imgSource={imgSource}
+              //           name={movie[1]}
+              //           link={movie[3]}
+              //           key={movie[0]}
+              //           locale={selectedOption.value}
+              //           links={props.links}
+              //           addMovieFunc={addMovieToShowlist}
+              //           removeMovieFunc={removeMovieFromShowlist}
+              //           updateTag={updateTag}
+              //         />
+              //       </div>
+              //     );
+              //   }
+              // }
             })}
           </div>
         ) : (

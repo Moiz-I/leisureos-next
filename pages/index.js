@@ -6,7 +6,7 @@ import MovieGrid from "@/src/MovieGrid";
 import Link from "next/link";
 
 import { GlobalProvider, GlobalContext } from "../context/GlobalState";
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext, useState, useCallback } from "react";
 // import { AppWrapper } from "@/context/AppContext";
 import useLocalStorage from "use-local-storage";
 
@@ -43,12 +43,6 @@ export async function getServerSideProps(context) {
 }
 
 export default function Home({ show, id }) {
-  console.log("INDEX ID", id);
-  console.log("INDEX SHOW", show);
-
-  const [username, setUsername] = useLocalStorage("jeff", "bob");
-  console.log("username", username);
-
   return (
     <GlobalProvider>
       <Head>

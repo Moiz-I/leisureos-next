@@ -16,6 +16,9 @@ export const MovieCard = ({
   links,
   addMovieFunc,
   removeMovieFunc,
+  updateTag,
+  matches,
+  defaultPage,
 }) => {
   const router = useRouter();
 
@@ -59,38 +62,47 @@ export const MovieCard = ({
     let storedMovie = showlist.find((o) => o[0] === id);
     showlist[showlist.indexOf(storedMovie)][3] = newLink;
   };
+
+  console.log("matches? ", matches, " default? ", defaultPage);
   return (
-    <div className="movie-card">
-      <a href={link}>
-        <div className="overlay"></div>
-        <img src={imgSource} alt={`${name} Poster`} />
-      </a>
-      <div className="inner-card-controls">
-        <>
-          <button className="ctrl-btn" onClick={onOpenModal}>
-            <i className="fa-fw fa fa-pen-square"></i>
-          </button>
-          <button className="ctrl-btn" onClick={() => removeMovieFunc(id)}>
-            <i className="fa-fw fa fa-times"></i>
-          </button>
-          <Modal open={open} onClose={onCloseModal} center>
-            {hasLoaded ? (
-              <AddLink
-                edit={true}
-                movie={[id, name, imgSource, link]}
-                closeModal={onCloseModal}
-                locale={locale}
-                links={links}
-                addMovieFunc={addMovieFunc}
-                removeMovieFunc={removeMovieFunc}
-              />
-            ) : (
-              <></>
-            )}
-          </Modal>
-        </>
-      </div>
-      {/* <p>{name}</p> */}
-    </div>
+    <>
+      {1 == 1 ? (
+        <div className="movie-card">
+          <a href={link}>
+            <div className="overlay"></div>
+            <img src={imgSource} alt={`${name} Poster`} />
+          </a>
+          <div className="inner-card-controls">
+            <>
+              <button className="ctrl-btn" onClick={onOpenModal}>
+                <i className="fa-fw fa fa-pen-square"></i>
+              </button>
+              <button className="ctrl-btn" onClick={() => removeMovieFunc(id)}>
+                <i className="fa-fw fa fa-times"></i>
+              </button>
+              <Modal open={open} onClose={onCloseModal} center>
+                {hasLoaded ? (
+                  <AddLink
+                    edit={true}
+                    movie={[id, name, imgSource, link]}
+                    closeModal={onCloseModal}
+                    locale={locale}
+                    links={links}
+                    addMovieFunc={addMovieFunc}
+                    removeMovieFunc={removeMovieFunc}
+                    updateTag={updateTag}
+                  />
+                ) : (
+                  <></>
+                )}
+              </Modal>
+            </>
+          </div>
+          {/* <p>{name}</p> */}
+        </div>
+      ) : (
+        <></>
+      )}
+    </>
   );
 };

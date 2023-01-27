@@ -1,8 +1,9 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext, useState, useCallback } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import axios from "axios";
 import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
+import { ReactTags } from "react-tag-autocomplete";
 
 export const AddLink = ({
   movie,
@@ -12,6 +13,7 @@ export const AddLink = ({
   links,
   addMovieFunc,
   removeMovieFunc,
+  updateTag,
 }) => {
   const [link, setLink] = useState("Loading..");
   const [customLink, setCustomLink] = useState("");
@@ -23,26 +25,60 @@ export const AddLink = ({
   const [hbo, setHBO] = useState("");
   const [crunchyroll, setCruchyroll] = useState("");
 
-  //console.log("addlink locale: ", locale);
-  //const [showlist, setShowlist] = useLocalStorage("showlist", []);
-
-  // const addMovieToShowlist = (movie) => {
-  //   setShowlist([movie, ...showlist]);
-  // };
-
-  // const removeMovieFromShowlist = (id) => {
-  //   setShowlist(showlist.filter((movie) => movie[0] !== id));
-  // };
+  const [tags, setTags] = useLocalStorage("tags", []);
+  const countries = ["Afghanistan", "Albania", "Algeria"];
+  const suggestions = tags.map((name, index) => ({
+    value: index,
+    label: name,
+  }));
+  const [selectedTags, setSelectedTags] = useState([]);
+  const updateShowTags = (newTag) => {
+    setSelectedTags([...selectedTags, newTag.value]);
+    console.log(selectedTags);
+  };
+  const getTags = () => {
+    const arr = [];
+    for (const i in selected) {
+      arr.push(selected[i].value);
+    }
+    console.log("arr: ", arr);
+    return arr;
+  };
+  const [selected, setSelected] = useState([]);
+  const onAdd = useCallback(
+    (newTag) => {
+      setSelected([...selected, newTag]);
+      updateTag(newTag);
+      updateShowTags(newTag);
+      console.log("newtag: ", newTag.value);
+      console.log("selected: ", selected);
+      console.log("selectedtags: ", selectedTags);
+    },
+    [selected]
+  );
+  const onDelete = useCallback(
+    (tagIndex) => {
+      setSelected(selected.filter((_, i) => i !== tagIndex));
+    },
+    [selected]
+  );
 
   const { removeMovie, addMovieToWatchlist, watchlist } =
     useContext(GlobalContext);
   const addMovie = (event) => {
     const selectedLink = event.target.attributes.value.value;
     //.log("add mobie link: ", selectedLink);
-    const movieWithLink = [movie[0], movie[1], movie[2], selectedLink];
+    const movieWithLink = [
+      movie[0],
+      movie[1],
+      movie[2],
+      selectedLink,
+      getTags(),
+    ];
     if (edit) {
       removeMovieFunc(movie[0]);
     }
+    console.log(movieWithLink);
     addMovieFunc(movieWithLink);
     closeModal();
   };
@@ -123,61 +159,6 @@ export const AddLink = ({
     }
   }, [links]);
 
-  // var results = links;
-
-  // var offers = results.items[0].offers;
-
-  // console.log("OFFERS: ", offers)
-
-  // var someLinks = false;
-  // for (const i in offers) {
-  //   var service = offers[i].package_short_name;
-  //   const resultLink = offers[i].urls.deeplink_web
-  //     ? offers[i].urls.deeplink_web
-  //     : offers[i].urls.standard_web;
-
-  //   switch (service) {
-  //     case "nfx":
-  //       console.log("netflix");
-  //       setNetflix(resultLink);
-  //       someLinks = true;
-  //       break;
-  //     case "amp":
-  //       console.log("prime");
-  //       setPrime(resultLink);
-  //       someLinks = true;
-  //       break;
-  //     case "dnp":
-  //       console.log(resultLink);
-  //       setDisney(resultLink);
-  //       someLinks = true;
-  //       break;
-  //     case "bbc":
-  //       console.log(resultLink);
-  //       setBBC(resultLink);
-  //       someLinks = true;
-  //       break;
-  //     case "hbo":
-  //       console.log("hbo");
-  //       setHBO(resultLink);
-  //       someLinks = true;
-  //       break;
-  //     case "cru":
-  //       console.log("crunchyroll");
-  //       setCruchyroll(resultLink);
-  //       someLinks = true;
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // }
-  // if (!someLinks) {
-  //   setLink("No links found");
-  // } else {
-  //   setLink("");
-  // }
-
-  //search(movie[1]);
   return (
     <div className="links-container">
       <p>{movie[1]}</p>
@@ -231,6 +212,17 @@ export const AddLink = ({
           </label>
           <input type="submit" className="submit-link" value={"✓"} />
         </form>
+        <ReactTags
+          allowNew
+          allowBackspace
+          startWithFirstOption
+          closeOnSelect
+          labelText="add tags"
+          selected={selected}
+          suggestions={suggestions}
+          onAdd={onAdd}
+          onDelete={onDelete}
+        />
       </div>
     </div>
   );
