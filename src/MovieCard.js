@@ -63,7 +63,7 @@ export const MovieCard = ({
     showlist[showlist.indexOf(storedMovie)][3] = newLink;
   };
 
-  console.log("matches? ", matches, " default? ", defaultPage);
+  //console.log("matches? ", matches, " default? ", defaultPage);
   return (
     <>
       {1 == 1 ? (

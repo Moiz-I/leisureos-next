@@ -39,7 +39,7 @@ export default function MovieGrid(props) {
     for (const i in selected) {
       arr.push(selected[i].label);
     }
-    console.log("arr: ", arr, "selected: ", selected);
+    //console.log("arr: ", arr, "selected: ", selected);
     return arr;
   };
 
@@ -92,9 +92,27 @@ export default function MovieGrid(props) {
     //console.log("chanhed country");
   };
 
+  const isAdded = (id) => {
+    let storedMovie = showlist.find((o) => o[0] === id);
+    const alreadyAdded = storedMovie ? true : false;
+
+    return alreadyAdded;
+  };
+
   const addMovieToShowlist = (movie) => {
     console.log("adding: ", movie);
-    setShowlist([movie, ...showlist]);
+    if (isAdded(movie[0])) {
+      console.log("ALREADY ADDED");
+      // removeMovieFromShowlist(movie[0]);
+      //setShowlist(showlist.filter((m) => m[0] !== movie[0]));
+      console.log("showlist after removing: ", showlist);
+      setShowlist([movie, ...showlist]);
+      setShowlist([movie, ...showlist]);
+      console.log("showlist after adding if added: ", showlist);
+    } else {
+      setShowlist([movie, ...showlist]);
+      console.log("showlist after adding if not added: ", showlist);
+    }
   };
 
   const removeMovieFromShowlist = (id) => {

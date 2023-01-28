@@ -24,6 +24,7 @@ export const AddLink = ({
   const [bbc, setBBC] = useState("");
   const [hbo, setHBO] = useState("");
   const [crunchyroll, setCruchyroll] = useState("");
+  const [nowtv, setNowtv] = useState("");
 
   const [tags, setTags] = useLocalStorage("tags", []);
   const countries = ["Afghanistan", "Albania", "Algeria"];
@@ -47,10 +48,15 @@ export const AddLink = ({
   const [selected, setSelected] = useState([]);
   const onAdd = useCallback(
     (newTag) => {
-      setSelected([...selected, newTag]);
-      updateTag(newTag);
-      updateShowTags(newTag);
-      console.log("newtag: ", newTag.value);
+      const fixedNewTag = { value: newTag.label, label: newTag.label };
+      console.log("fixednewtag: ", fixedNewTag);
+      console.log("newtag: ", newTag);
+
+      setSelected([...selected, fixedNewTag]);
+      updateTag(fixedNewTag);
+      updateShowTags(fixedNewTag);
+      console.log("newtag.value: ", newTag.label);
+      console.log("newtag.label: ", newTag.label);
       console.log("selected: ", selected);
       console.log("selectedtags: ", selectedTags);
     },
@@ -73,13 +79,16 @@ export const AddLink = ({
       movie[1],
       movie[2],
       selectedLink,
-      getTags(),
+      getTags() ? getTags() : [],
     ];
     if (edit) {
+      console.log("EDITED");
       removeMovieFunc(movie[0]);
+      addMovieFunc(movieWithLink);
+    } else {
+      addMovieFunc(movieWithLink);
     }
     console.log(movieWithLink);
-    addMovieFunc(movieWithLink);
     closeModal();
   };
 
@@ -89,11 +98,21 @@ export const AddLink = ({
     if (!clink.includes("https://")) {
       clink = "https://" + clink;
     }
-    const movieWithLink = [movie[0], movie[1], movie[2], clink];
+    const movieWithLink = [
+      movie[0],
+      movie[1],
+      movie[2],
+      clink,
+      getTags() ? getTags() : [],
+    ];
     if (edit) {
+      console.log("EDITED");
       removeMovieFunc(movie[0]);
+      addMovieFunc(movieWithLink);
+    } else {
+      addMovieFunc(movieWithLink);
     }
-    addMovieFunc(movieWithLink);
+    console.log(movieWithLink);
     closeModal();
   };
 
@@ -141,6 +160,11 @@ export const AddLink = ({
           case "cru":
             console.log("crunchyroll");
             setCruchyroll(resultLink);
+            someLinks = true;
+            break;
+          case "now":
+            console.log("nowtv");
+            setNowtv(resultLink);
             someLinks = true;
             break;
           default:
@@ -191,6 +215,11 @@ export const AddLink = ({
       {crunchyroll != "" && (
         <button onClick={addMovie} value={crunchyroll} className="crunchyroll">
           crunchyroll
+        </button>
+      )}
+      {nowtv != "" && (
+        <button onClick={addMovie} value={nowtv} className="bbc">
+          nowtv
         </button>
       )}
       {/* <p>{netflix}</p>
